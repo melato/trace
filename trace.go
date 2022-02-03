@@ -1,4 +1,4 @@
-// Simple facility for initializing trace options
+// Package trace is a simple utility for initializing boolean trace variables
 // A trace option typically enables trace output, for debugging, testing, or diagnostics,
 // without otherwise changing a program's behaviour
 // Trace options are initialized by passing a comma-separated list of option names and option definitions to Set()
