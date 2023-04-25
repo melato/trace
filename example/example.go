@@ -26,7 +26,12 @@ func (t *App) Configured() error {
 }
 
 func (t *App) Run() error {
-	fmt.Printf("a=%v b=%v\n", TraceA, TraceB)
+	if TraceA {
+		fmt.Printf("a\n")
+	}
+	if TraceB {
+		fmt.Printf("b\n")
+	}
 	return nil
 }
 
