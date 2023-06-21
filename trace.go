@@ -22,7 +22,7 @@ type Option interface {
 	Enable()
 }
 
-// Opt is an Option that sets boolelan flags.  Use the function T() to construct options conveniently.
+// Opt is an Option that sets boolean flags.  Use the function T() to construct options conveniently.
 type Opt struct {
 	name string
 	//  The flags to set if the option is enabled
