@@ -51,7 +51,7 @@ func Set(traceString string, option ...Option) error {
 	for _, t := range option {
 		name := t.Name()
 		if all || names[name] {
-			t.Enable()
+			t.Enable(true)
 		}
 		validNames[name] = true
 	}

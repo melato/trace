@@ -6,8 +6,8 @@ type Option interface {
 	Name() string
 	// Description is a short description that explains what enabling of this option does.  It is displayed when the options usage is displayed.
 	Description() string
-	// Enable this option
-	Enable()
+	// Enable or disable this option
+	Enable(on bool)
 }
 
 // Opt is an Option implementation that sets boolean flags.  Use the function T() to construct options conveniently.
@@ -22,9 +22,9 @@ type Opt struct {
 func (t *Opt) Name() string { return t.name }
 
 // Enable implements Option.Enable().  It sets the flag values to true.
-func (t *Opt) Enable() {
+func (t *Opt) Enable(on bool) {
 	for _, flag := range t.flags {
-		*flag = true
+		*flag = on
 	}
 }
 
