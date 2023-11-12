@@ -6,27 +6,26 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// App - a structure that can be used to setup
+// App - a structure that can be used to setup trace options.
 // It is designed to be used as the flags of the top-level command in a CLI application.
+// Its public interface does not use any trace data types, so that
+// it does not add such dependencies in all modules that you want to trace.
 type App struct {
-	TraceOptions []Option `name:"-"`
-	Flags
+	traceOptions []Option `name:"-"`
+	Trace        string   `name:"trace" usage:"comma-separated list of trace options"`
 }
 
-func (t *App) AddOptionVariables(prefix string, m map[string]*bool) {
+func (t *App) AddVariables(prefix string, m map[string]*bool) {
 	for name, v := range m {
-		if prefix != "" {
-			name = prefix + "." + name
-		}
-		t.TraceOptions = append(t.TraceOptions,
-			T(name, v))
+		t.traceOptions = append(t.traceOptions,
+			newFuncOption(prefix, name, func(b bool) { *v = b }, ""))
 	}
 }
 
-// AddOptionFuncs adds trace options from a map from trace names a func that enables tracing for that name.
+// AddFuncsDesc adds trace options from a map from trace names a func that enables tracing for that name.
 // If prefix is not empty, it is prepended to the name, with a "." as separator.
 // If descriptions is not empty, it contains a YAML map from unprefixed names to descriptions.
-func (t *App) AddOptionFuncsDesc(prefix string, m map[string]func(bool), descriptionsYaml []byte) {
+func (t *App) AddFuncsDesc(prefix string, m map[string]func(bool), descriptionsYaml []byte) {
 	var descriptions map[string]string
 	if len(descriptionsYaml) > 0 {
 		err := yaml.Unmarshal(descriptionsYaml, &descriptions)
@@ -35,40 +34,14 @@ func (t *App) AddOptionFuncsDesc(prefix string, m map[string]func(bool), descrip
 		}
 	}
 	for name, fn := range m {
-		var qname = name
-		if prefix != "" {
-			qname = prefix + "." + name
-		}
-		t.TraceOptions = append(t.TraceOptions, &funcOption{qname, fn, descriptions[name]})
+		t.traceOptions = append(t.traceOptions, newFuncOption(prefix, name, fn, descriptions[name]))
 	}
 }
 
 // AddOptionFuncs adds trace options from a map from trace names a func that enables tracing for that name.
 // If prefix is not empty, it is prepended to the name, with a "." as separator.
-func (t *App) AddOptionFuncs(prefix string, m map[string]func(bool)) {
-	t.AddOptionFuncsDesc(prefix, m, nil)
-}
-
-type funcOption struct {
-	name string
-	//  The flags to set if the option is enabled
-	fn func(bool)
-
-	description string
-}
-
-// Name is the identifier used to enable the option
-func (t *funcOption) Name() string {
-	return t.name
-}
-
-// Description is a short description that explains what enabling of this option does.  It is displayed when the options usage is displayed.
-func (t *funcOption) Description() string {
-	return t.description
-}
-
-func (t *funcOption) Enable(on bool) {
-	t.fn(on)
+func (t *App) AddFuncs(prefix string, m map[string]func(bool)) {
+	t.AddFuncsDesc(prefix, m, nil)
 }
 
 func (t *App) Init() error {
@@ -76,5 +49,5 @@ func (t *App) Init() error {
 }
 
 func (t *App) Configured() error {
-	return t.Flags.Set(t.TraceOptions...)
+	return Set(t.Trace, t.traceOptions...)
 }

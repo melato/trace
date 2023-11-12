@@ -3,16 +3,16 @@ package main
 import (
 	_ "embed"
 	"example/util"
+	"flag"
 
-	"melato.org/command"
 	"melato.org/trace"
 )
 
 func main() {
-	cmd := &command.SimpleCommand{}
 	var app trace.App
 	app.AddFuncsDesc("", util.TraceFuncs(), util.TraceDescriptions)
-	cmd.Flags(&app)
-	cmd.Command("run").RunFunc(util.Run)
-	command.Main(cmd)
+	flag.StringVar(&app.Trace, "trace", "", "comma-separated list of trace options")
+	flag.Parse()
+	app.Configured()
+	util.Run()
 }
