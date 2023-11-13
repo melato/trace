@@ -2,20 +2,40 @@ package trace
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
+type optionSorter []Option
+
+func (t optionSorter) Len() int      { return len(t) }
+func (t optionSorter) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t optionSorter) Less(i, j int) bool {
+	iname := t[i].Name()
+	jname := t[j].Name()
+	iDot := strings.Index(iname, ".") >= 0
+	jDot := strings.Index(iname, ".") >= 0
+	if iDot == jDot {
+		return iname < jname
+	}
+	return jDot
+}
+
 func print(traces []Option) {
-	fmt.Printf("Available traces:\n")
+	cp := make([]Option, len(traces))
+	copy(cp, traces)
+	sort.Sort(optionSorter(cp))
 	nameLen := 1
-	for _, t := range traces {
-		w := len(t.Name())
+	for _, tr := range cp {
+		name := tr.Name()
+		w := len(name)
 		if w > nameLen {
 			nameLen = w
 		}
 	}
-	for _, t := range traces {
-		fmt.Printf(" %-*s %s\n", nameLen, t.Name(), t.Description())
+	fmt.Printf("Available traces:\n")
+	for _, tr := range cp {
+		fmt.Printf(" %-*s %s\n", nameLen, tr.Name(), tr.Description())
 	}
 	fmt.Printf(" %-*s %s\n", nameLen, ".", "all of the above")
 }
