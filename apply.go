@@ -14,7 +14,7 @@ func (t optionSorter) Less(i, j int) bool {
 	iname := t[i].Name()
 	jname := t[j].Name()
 	iDot := strings.Index(iname, ".") >= 0
-	jDot := strings.Index(iname, ".") >= 0
+	jDot := strings.Index(jname, ".") >= 0
 	if iDot == jDot {
 		return iname < jname
 	}
