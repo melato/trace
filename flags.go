@@ -12,7 +12,7 @@ import (
 // it does not add such dependencies in all modules that you want to trace.
 type Flags struct {
 	traceOptions []Option `name:"-"`
-	Trace        string   `name:"trace" usage:"comma-separated list of trace options"`
+	Trace        string   `name:"trace" usage:"comma-separated list of trace options.  Use ? for help"`
 }
 
 func (t *Flags) AddVariables(prefix string, m map[string]*bool) {

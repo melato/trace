@@ -2,6 +2,7 @@ package trace
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -37,7 +38,6 @@ func print(traces []Option) {
 	for _, tr := range cp {
 		fmt.Printf(" %-*s %s\n", nameLen, tr.Name(), tr.Description())
 	}
-	fmt.Printf(" %-*s %s\n", nameLen, ".", "all of the above")
 }
 
 // Set parses the trace string, which consists of comma-separated option names.
@@ -49,27 +49,54 @@ func Set(traceString string, option ...Option) error {
 	if traceString == "" {
 		return nil
 	}
-	names := make(map[string]bool)
-	for _, name := range strings.Split(traceString, ",") {
-		names[name] = true
+	if traceString == "?" {
+		print(option)
+		fmt.Printf("Use %% for wildcard\n")
+		return fmt.Errorf("(exit)")
+	}
+	optionNames := make(map[string]bool)
+	for _, t := range option {
+		optionNames[t.Name()] = true
+	}
+	var patterns []*regexp.Regexp
+	names := strings.Split(traceString, ",")
+	nameMap := make(map[string]bool) // non regexp
+	for _, name := range names {
+		if strings.ContainsAny(name, "*%") {
+			expr := strings.ReplaceAll(name, ".", "\\.")
+			expr = strings.ReplaceAll(expr, "*", ".*")
+			expr = strings.ReplaceAll(expr, "%", ".*")
+			expr = "^" + expr + "$"
+			re, err := regexp.Compile(expr)
+			if err != nil {
+				return fmt.Errorf("expr: %s: %w", err)
+			}
+			patterns = append(patterns, re)
+		} else {
+			if !optionNames[name] {
+				fmt.Printf("use ? for list of trace names")
+				return fmt.Errorf("unknown trace: %s", name)
+			}
+			nameMap[name] = true
+		}
 	}
 
-	all := names["."]
-	validNames := map[string]bool{".": true}
-	//validNames := make(map[string]bool)
 	for _, t := range option {
 		name := t.Name()
-		if all || names[name] {
-			t.Enable(true)
+		var enable bool
+		if nameMap[name] {
+			enable = true
+		} else {
+			for _, re := range patterns {
+				if re.MatchString(name) {
+					enable = true
+					break
+				}
+			}
 		}
-		validNames[name] = true
-	}
-
-	// check for invalid specifications
-	for name, _ := range names {
-		if !validNames[name] {
-			print(option)
-			return fmt.Errorf("unknown trace: %s", name)
+		if enable {
+			t.Enable(true)
+			fmt.Printf("enable trace: %s\n", name)
 		}
 	}
 	return nil
