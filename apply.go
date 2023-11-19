@@ -74,7 +74,7 @@ func Set(traceString string, option ...Option) error {
 			patterns = append(patterns, re)
 		} else {
 			if !optionNames[name] {
-				fmt.Printf("use ? for list of trace names")
+				fmt.Printf("use ? for list of trace names\n")
 				return fmt.Errorf("unknown trace: %s", name)
 			}
 			nameMap[name] = true
