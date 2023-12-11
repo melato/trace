@@ -48,6 +48,16 @@ func (t *Flags) AddFuncs(prefix string, m map[string]func(bool)) {
 	t.AddFuncsDesc(prefix, m, nil)
 }
 
+func (t *Flags) Add(prefix string, funcs Funcs) {
+	var descriptions []byte
+	desc, hasDesc := funcs.(Descriptions)
+	if hasDesc {
+		descriptions = desc.Descriptions()
+
+	}
+	t.AddFuncsDesc(prefix, funcs.Funcs(), descriptions)
+}
+
 func (t *Flags) Init() error {
 	return nil
 }
