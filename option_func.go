@@ -16,7 +16,11 @@ func newFuncOption(prefix, name string, fn func(bool), description string) Optio
 // Name is the identifier used to enable the option
 func (t *funcOption) Name() string {
 	if t.prefix != "" {
-		return t.prefix + "." + t.name
+		if t.name != "" {
+			return t.prefix + "." + t.name
+		} else {
+			return t.prefix
+		}
 	}
 	return t.name
 }
