@@ -44,12 +44,12 @@ func print(traces []Option) {
 // It then goes through the provided options and enables the options whose names are included in the list of names.
 // If a name does not match an option, the list of available options is printed to stdout.
 //
-// The special name "." is used to enable all options.
+// The special name "%" is used to enable all options.
 func Set(traceString string, option ...Option) error {
 	if traceString == "" {
 		return nil
 	}
-	if traceString == "?" {
+	if traceString == "." {
 		print(option)
 		fmt.Printf("Use %% for wildcard\n")
 		return fmt.Errorf("(exit)")
@@ -74,7 +74,8 @@ func Set(traceString string, option ...Option) error {
 			patterns = append(patterns, re)
 		} else {
 			if !optionNames[name] {
-				fmt.Printf("use ? for list of trace names\n")
+				fmt.Printf("traceString='%s'\n", traceString)
+				fmt.Printf("use '.' for list of trace names\n")
 				return fmt.Errorf("unknown trace: %s", name)
 			}
 			nameMap[name] = true
