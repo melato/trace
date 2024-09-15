@@ -10,9 +10,9 @@ import (
 
 func main() {
 	cmd := &command.SimpleCommand{}
-	var app trace.App
-	app.AddFuncsDesc("", util.TraceFuncs(), util.TraceDescriptions)
-	cmd.Flags(&app)
+	var flags trace.Flags
+	flags.AddFuncsDesc("", util.TraceFuncs(), util.TraceDescriptions)
+	cmd.Flags(&flags)
 	cmd.Command("run").RunFunc(util.Run)
 	command.Main(cmd)
 }
