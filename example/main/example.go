@@ -1,8 +1,10 @@
+// example uses the melato.org/command package for command-line arguments
 package main
 
 import (
 	_ "embed"
-	"example/util"
+
+	"example"
 
 	"melato.org/command"
 	"melato.org/trace"
@@ -11,8 +13,8 @@ import (
 func main() {
 	cmd := &command.SimpleCommand{}
 	var flags trace.Flags
-	flags.AddFuncsDesc("", util.TraceFuncs(), util.TraceDescriptions)
+	flags.Add("", &example.Trace{})
 	cmd.Flags(&flags)
-	cmd.Command("run").RunFunc(util.Run)
+	cmd.Command("run").RunFunc(example.Run)
 	command.Main(cmd)
 }

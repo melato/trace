@@ -1,8 +1,9 @@
+// example-flag uses the flag package for command-line arguments
 package main
 
 import (
 	_ "embed"
-	"example/util"
+	"example"
 	"flag"
 
 	"melato.org/trace"
@@ -10,9 +11,9 @@ import (
 
 func main() {
 	var flags trace.Flags
-	flags.AddFuncsDesc("", util.TraceFuncs(), util.TraceDescriptions)
+	flags.Add("", &example.Trace{})
 	flag.StringVar(&flags.Trace, "trace", "", "comma-separated list of trace options")
 	flag.Parse()
 	flags.Configured()
-	util.Run()
+	example.Run()
 }
