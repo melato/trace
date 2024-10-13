@@ -69,7 +69,7 @@ func Set(traceString string, option ...Option) error {
 			expr = "^" + expr + "$"
 			re, err := regexp.Compile(expr)
 			if err != nil {
-				return fmt.Errorf("expr: %s: %w", err)
+				return fmt.Errorf("expr: %s: %w", expr, err)
 			}
 			patterns = append(patterns, re)
 		} else {

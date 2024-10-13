@@ -48,20 +48,29 @@ func (t *Flags) AddFuncs(prefix string, m map[string]func(bool)) {
 	t.AddFuncsDesc(prefix, m, nil)
 }
 
-func (t *Flags) Add(prefix string, funcs Funcs) {
-	var descriptions []byte
-	desc, hasDesc := funcs.(Descriptions)
-	if hasDesc {
-		descriptions = desc.Descriptions()
+func (t *Flags) Add(prefix string, v any) {
+	switch x := v.(type) {
+	case Funcs:
+		var descriptions []byte
+		desc, hasDesc := x.(Descriptions)
+		if hasDesc {
+			descriptions = desc.Descriptions()
 
+		}
+		t.AddFuncsDesc(prefix, x.Funcs(), descriptions)
+	case map[string]*bool:
+		t.AddVariables(prefix, x)
+	default:
+		fmt.Printf("trace Add(%s): unsupported type: %T\n", prefix, v)
 	}
-	t.AddFuncsDesc(prefix, funcs.Funcs(), descriptions)
 }
 
+// nop
 func (t *Flags) Init() error {
 	return nil
 }
 
+// Configured sets the trace flags
 func (t *Flags) Configured() error {
 	return Set(t.Trace, t.traceOptions...)
 }
