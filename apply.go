@@ -1,7 +1,10 @@
 package trace
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -103,6 +106,32 @@ func Set(traceString string, option ...Option) error {
 	if traceString == "" {
 		return nil
 	}
-	names := strings.Split(traceString, ",")
+	var names []string
+	if traceString[0] == '@' {
+		var err error
+		names, err = readLines(traceString[1:])
+		if err != nil {
+			return err
+		}
+	} else {
+		names = strings.Split(traceString, ",")
+	}
 	return SetOptions(names, option)
+}
+
+func readLines(file string) ([]string, error) {
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+	scanner := bufio.NewScanner(bytes.NewReader(data))
+	var lines []string
+	for scanner.Scan() {
+		line := scanner.Text()
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") {
+			lines = append(lines, line)
+		}
+	}
+	return lines, nil
 }
